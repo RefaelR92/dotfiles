@@ -58,7 +58,6 @@ local M = {
     'rcarriga/nvim-dap-ui',
     { 'mfussenegger/nvim-dap-python', lazy = true },
     'rcarriga/cmp-dap',
-    'mxsdev/nvim-dap-vscode-js',
     'theHamsta/nvim-dap-virtual-text',
     'jay-babu/mason-nvim-dap.nvim',
   },
@@ -97,8 +96,6 @@ M.config = function()
     automatic_installation = true,
     ensure_installed = {
       'bash',
-      'chrome',
-      'node2',
       'python',
     },
     automatic_setup = true,
@@ -150,7 +147,7 @@ M.config = function()
   local the_actions = actions()
   require('user.menu').add_actions('DAP', the_actions)
   vim.keymap.set('n', '<leader>dm', function()
-    vim.ui.select(vim.tbl_keys(the_actions), { prompt = 'Choose DAP action', title = 'DAP Actions' }, function(choice)
+    vim.ui.select(vim.tbl_keys(the_actions), { prompt = 'Choose DAP action❯ ', title = 'DAP Actions' }, function(choice)
       if choice then
         the_actions[choice]()
       end

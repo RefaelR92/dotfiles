@@ -1,3 +1,4 @@
+local model = 'claude-sonnet-4.5'
 return {
   {
     'zbirenbaum/copilot.lua',
@@ -36,7 +37,14 @@ return {
     opts = {
       extensions = {
         avante = {
+          enabled = true,
           make_slash_commands = true, -- make /slash commands from MCP server prompts
+        },
+        copilotchat = {
+          enabled = false,
+          convert_tools_to_functions = true, -- Convert MCP tools to CopilotChat functions
+          convert_resources_to_functions = true, -- Convert MCP resources to CopilotChat functions
+          add_mcp_prefix = true, -- Add "mcp_" prefix to function names
         },
       },
     },
@@ -67,13 +75,14 @@ return {
       'CopilotChatToggle',
     },
     dependencies = {
-      { 'zbirenbaum/copilot.lua' },
-      { 'nvim-lua/plenary.nvim' },
+      'zbirenbaum/copilot.lua',
+      'nvim-lua/plenary.nvim',
+      'ravitemer/mcphub.nvim',
     },
     build = 'make tiktoken',
     opts = {
       -- https://docs.github.com/en/copilot/using-github-copilot/ai-models/choosing-the-right-ai-model-for-your-task
-      model = 'claude-sonnet-4',
+      model = model,
       question_header = '  User ',
       answer_header = '  Copilot ',
       error_header = '  Error ',
@@ -81,16 +90,29 @@ return {
     keys = {
       { '<leader>ccc', '<cmd>CopilotChat<CR>', mode = { 'n', 'v' } },
       { '<leader>ccs', '<cmd>CopilotChatStop<CR>' },
+      {
+        '<leader>ccp',
+        function()
+          local actions = require 'CopilotChat.actions'
+          require('CopilotChat.integrations.fzflua').pick(actions.prompt_actions())
+        end,
+        desc = 'CopilotChat - Prompt actions',
+        mode = { 'n', 'v' },
+      },
     },
   },
   {
     'yetone/avante.nvim',
+    build = 'make',
+    enabled = true,
     version = false, -- Never set this value to "*"! Never!
     keys = {
       { '<leader>ccc', '<cmd>AvanteChat<CR>', mode = { 'n', 'v' } },
       { '<leader>ccs', '<cmd>AvanteStop<CR>' },
     },
     cmd = { 'AvanteChat' },
+    ---@module 'avante'
+    ---@type avante.Config
     opts = {
       disabled_tools = {
         'list_files', -- Built-in file operations
@@ -107,8 +129,7 @@ return {
       provider = 'copilot',
       providers = {
         copilot = {
-          -- model = 'gpt-4.1',
-          model = 'claude-sonnet-4',
+          model = model,
         },
       },
 
@@ -127,7 +148,6 @@ return {
       end,
     },
     -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-    build = 'make',
     -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
@@ -150,14 +170,14 @@ return {
           },
         },
       },
-      -- {
-      --   -- Make sure to set this up properly if you have lazy=true
-      --   'MeanderingProgrammer/render-markdown.nvim',
-      --   opts = {
-      --     file_types = { 'markdown', 'Avante' },
-      --   },
-      --   ft = { 'markdown', 'Avante' },
-      -- },
+      {
+        -- Make sure to set this up properly if you have lazy=true
+        'MeanderingProgrammer/render-markdown.nvim',
+        opts = {
+          file_types = { 'markdown', 'Avante' },
+        },
+        ft = { 'markdown', 'Avante' },
+      },
     },
   },
 }

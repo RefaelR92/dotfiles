@@ -2,7 +2,7 @@ return {
   'Ramilito/kubectl.nvim',
   version = '2.*',
   dependencies = 'saghen/blink.download',
-  dev = true,
+  dev = vim.env.K8S_DEV == 'true',
   opts = {
     kubectl_cmd = {
       persist_context_change = true,
@@ -19,24 +19,20 @@ return {
       heartbeat = true,
     },
     -- log_level = vim.log.levels.DEBUG,
-    -- diff = { bin = 'kdiff' },
-    -- headers = true,
-    -- hints = true,
-    -- context = true,
-    -- heartbeat = true,
-    -- kubernetes_versions = true,
-    -- auto_refresh = {
-    --   enabled = true,
-    -- },
-    -- filter = {
-    --   apply_on_select_from_history = false,
-    --   max_history = 100,
-    -- },
-    -- logs = {
-    --   since = '30s',
-    --   timestamps = false,
-    --   prefix = false,
-    -- },
+    diff = { bin = 'kdiff' },
+    filter = {
+      apply_on_select_from_history = false,
+      max_history = 30,
+    },
+    logs = {
+      since = '30s',
+      timestamps = false,
+      prefix = false,
+    },
+    alias = {
+      apply_on_select_from_history = true,
+      max_history = 30,
+    },
     -- lineage = {
     --   enabled = false,
     -- },
@@ -47,10 +43,26 @@ return {
   cmd = { 'Kubectl', 'Kubectx', 'Kubens' },
   keys = {
     { '<leader>k', '<cmd>lua require("kubectl").toggle()<cr>' },
-    -- { '<C-k>', '<Plug>(kubectl.kill)', ft = 'k8s_*' },
     { '7', '<Plug>(kubectl.view_nodes)', ft = 'k8s_*' },
-    { '8', '<Plug>(kubectl.view_overview)', ft = 'k8s_*' },
+    { '8', '<Plug>(kubectl.view_daemonsets)', ft = 'k8s_*' },
+    { '9', '<Plug>(kubectl.view_statefulsets)', ft = 'k8s_*' },
     { '<C-t>', '<Plug>(kubectl.view_top)', ft = 'k8s_*' },
+    {
+      '<C-y>',
+      function()
+        local _, buf_name = pcall(vim.api.nvim_buf_get_var, 0, 'buf_name')
+        local view = require('kubectl.views').resource_and_definition(vim.trim(buf_name))
+        if not view then
+          return
+        end
+
+        local name, ns = view.getCurrentSelection()
+        local txt = ns and (name .. ' -n ' .. ns) or name
+        vim.fn.setreg('+', txt)
+        vim.notify('Copied to clipboard: ' .. txt, vim.log.levels.INFO)
+      end,
+      ft = 'k8s_*',
+    },
     {
       'Z',
       function()
@@ -73,7 +85,8 @@ return {
       group = group,
       pattern = 'k8s_*',
       callback = function()
-        vim.opt.titlestring = 'k8s: %t'
+        vim.o.relativenumber = false
+        vim.opt.titlestring = '❄️ k8s: %t'
         if vim.bo.filetype == 'k8s_yaml' then
           vim.bo.filetype = 'yaml'
         end
@@ -83,10 +96,11 @@ return {
       group = group,
       pattern = 'K8sContextChanged',
       callback = function(ctx)
-        local results = require('kubectl.actions.commands').shell_command('kubectl', { 'config', 'use-context', ctx.data.context })
-        if not results then
-          vim.notify(results, vim.log.levels.INFO)
-        end
+        vim.system({ 'kubectl', 'config', 'use-context', ctx.data.context }, { text = true }, function(results)
+          if not results then
+            vim.notify(results, vim.log.levels.INFO)
+          end
+        end)
       end,
     })
     vim.api.nvim_create_autocmd('User', {
@@ -97,9 +111,14 @@ return {
         local kind = ctx.data.kind
         if kubectl_user[kind] and kubectl_user[kind].select then
           kubectl_user[kind].select(ctx.data.name, ctx.data.ns)
-        else
-          vim.notify('No handler for ' .. kind .. ' resource', vim.log.levels.WARN)
         end
+      end,
+    })
+    vim.api.nvim_create_autocmd('User', {
+      group = group,
+      pattern = 'K8sCacheLoaded',
+      callback = function()
+        vim.notify('Kubernetes api-resources cache loaded', vim.log.levels.INFO)
       end,
     })
   end,

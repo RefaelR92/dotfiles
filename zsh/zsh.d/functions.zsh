@@ -13,39 +13,13 @@ function say-hebrew() {
   if [[ -z $* ]]; then
     dialog -t "Say in hebrew" -m "Enter a sentence in hebrew" --bannertext Say --textfield message,required 2>/dev/null | awk -F: '{print $2}' | xargs say -v 'Carmit (Enhanced)'
   else
-    echo $* | say -v 'Carmit (Enhanced)'
+    echo $* | say -v 'Carmit'
   fi
 }
 
 function set-tab-title() {
   title=$(dialog -t "Set tab title" -m "Enter the title for the tab" --bannertext Set --textfield title,required 2>/dev/null | awk -F: '{print $2}')
   echo -e "\033]0;${title}\a"
-}
-
-### Helper functions ###
-function _alias_parser() {
-  parsed_alias=$(alias -- "$1")
-  if [[ $? == 0 ]]; then
-    echo $parsed_alias | awk -F\' '{print $2}'
-  fi
-}
-
-function _alias_finder() {
-  final_result=()
-  for s in $(echo $1); do
-    alias_val=$(_alias_parser "$s")
-    if [[ -n $alias_val ]]; then
-      # Handle nested aliases with the same name
-      if [[ $alias_val == *"$s"* ]]; then
-        final_result+=($alias_val)
-      else
-        final_result+=($(_alias_finder "$alias_val"))
-      fi
-    else
-      final_result+=($s)
-    fi
-  done
-  echo "${final_result[@]}"
 }
 
 ### Random functions ###
@@ -57,10 +31,40 @@ function mwatch() {
   watch "$final_alias"
 }
 
+function ecr-login() {
+  set -x
+  region=$1
+  if [[ -z $region ]]; then
+    region=$(aws configure get region --output text)
+  fi
+  aws ecr get-login-password \
+    --region $region | docker login \
+    --username AWS \
+    --password-stdin $(aws sts get-caller-identity | jq \
+      -r ".Account").dkr.ecr.${region}.amazonaws.com
+  [[ -z $1 ]] && aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+  set +x
+}
+
 function clone() {
   cd ~/Repos
-  git clone $1
-  cd "$(basename "$_" .git)"
+  REPO=$1
+  CD_INTO=$REPO
+  # check if $REPO starts with git@ or https://
+  if [[ $REPO == git@* || $REPO == https://* ]]; then
+    git clone $REPO
+    CD_INTO=$(sed 's/\.git$//' <<<"$REPO" | awk -F/ '{print $NF}')
+  else
+    # check if $REPO is in user/repo format
+    if [[ $REPO == */* ]]; then
+      git clone https://github.com/${REPO}.git
+      CD_INTO=$(awk -F'/' '{print $2}' <<<$REPO)
+    else
+      git clone git@github.com:spotinst/${1}.git
+    fi
+  fi
+  echo "CDing into $CD_INTO"
+  cd $CD_INTO
   nvim
 }
 
@@ -315,16 +319,6 @@ function kgel() {
   fi
   kubectl get pod $* -ojson | jq -r '.metadata.labels | to_entries | .[] | "\(.key)=\(.value)"'
 }
-
-function asdf-kubectl-version() {
-  K8S_VERSION=$(kubectl version -ojson | jq -r '.serverVersion | "\(.major).\(.minor)"' | sed 's/\+$//')
-  TO_INSTALL=$(asdf list-all kubectl | grep "${K8S_VERSION}" | tail -1)
-  if ! asdf list kubectl "${TO_INSTALL}" &>/dev/null; then
-    asdf install kubectl "${TO_INSTALL}"
-  fi
-  asdf global kubectl "${TO_INSTALL}"
-}
-
 
 function mkdp() {
   kubectl get pod --no-headers | fzf | awk '{print $1}' | xargs -n 1 kubectl describe pod

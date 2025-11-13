@@ -3,11 +3,17 @@ return {
   'folke/snacks.nvim',
   priority = 1000,
   lazy = false,
+  ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
     dashboard = { enabled = false },
     indent = { enabled = false },
-    input = { enabled = true },
+    input = {
+      enabled = true,
+      win = {
+        row = 12,
+      },
+    },
     notifier = {
       enabled = false,
       timeout = 3000,
@@ -25,20 +31,6 @@ return {
     },
   },
   keys = {
-    {
-      '<leader>.',
-      function()
-        Snacks.scratch()
-      end,
-      desc = 'Toggle Scratch Buffer',
-    },
-    {
-      '<leader>S',
-      function()
-        Snacks.scratch.select()
-      end,
-      desc = 'Select Scratch Buffer',
-    },
     {
       '<leader>bd',
       function()
@@ -92,24 +84,6 @@ return {
       end,
       desc = 'Prev Reference',
       mode = { 'n', 't' },
-    },
-    {
-      '<leader>N',
-      desc = 'Neovim News',
-      function()
-        Snacks.win {
-          file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
-          width = 0.6,
-          height = 0.6,
-          wo = {
-            spell = false,
-            wrap = false,
-            signcolumn = 'yes',
-            statuscolumn = ' ',
-            conceallevel = 3,
-          },
-        }
-      end,
     },
   },
   init = function()

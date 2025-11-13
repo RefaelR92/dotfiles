@@ -17,6 +17,7 @@ alias ll='ls -lah'
 alias ls='eza '
 alias dc='cd '
 alias dotfiles='cd ~/.dotfiles'
+alias dot='cd ~/.dotfiles'
 alias pj='fdf ~/Repos/ ~/.dotfiles'
 alias lazy='fdf ~/.local/share/nvim/lazy/'
 alias repos="~/Repos"
@@ -31,7 +32,6 @@ alias sudoedit="nvim"
 alias zshrc='${=EDITOR} ${ZDOTDIR:-$HOME}/.zshrc'
 alias lv='NVIM_APPNAME=lightvim nvim '
 alias lvim='NVIM_APPNAME=lightvim nvim '
-alias news='nvim ~/.asdf/installs/neovim/nightly/share/nvim/runtime/doc/news.txt'
 
 #------------------------------------------------------------------------------
 # Development Tools
@@ -39,6 +39,7 @@ alias news='nvim ~/.asdf/installs/neovim/nightly/share/nvim/runtime/doc/news.txt
 alias tf='terraform'
 alias tg='terragrunt'
 alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim nightly'
+alias avante='nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mode()end, 100)"'
 
 #------------------------------------------------------------------------------
 # Git
