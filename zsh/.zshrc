@@ -32,13 +32,6 @@ path=(
   /usr/local/opt/postgresql@15/bin
   $path
 )
-if [[ -d "$HOME/Repos/moshe/devops-scripts" ]];then
-  for i in $HOME/Repos/moshe/devops-scripts/*; do
-    if [[ -d "$i" && -x "$i" ]]; then
-      path+=("$i")
-    fi
-  done
-fi
 export PATH
 export XDG_CONFIG_HOME=${HOME}/.config
 unset ZSH_AUTOSUGGEST_USE_ASYNC
@@ -90,7 +83,7 @@ export KUBERNETES_EXEC_INFO='{"apiVersion": "client.authentication.k8s.io/v1beta
 eval "$(starship init zsh)"
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/mosheavni/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mosheavni/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/Users/refaeldoron/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/refaeldoron/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/mosheavni/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mosheavni/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f '/Users/refaeldoron/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/refaeldoron/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
