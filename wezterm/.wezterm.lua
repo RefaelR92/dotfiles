@@ -78,7 +78,7 @@ config.background = {
     },
     repeat_y = 'NoRepeat',
     hsb = {
-      brightness = 0.17,
+      brightness = 0.03,
       hue = 1.0,
       saturation = 1.0,
     },
