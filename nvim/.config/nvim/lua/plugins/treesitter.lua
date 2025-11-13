@@ -8,12 +8,11 @@ end
 
 local M = {
   'nvim-treesitter/nvim-treesitter',
-  build = function()
-    pcall(require('nvim-treesitter.install').update { with_sync = true })
-  end,
+  branch = 'main',
+  lazy = false,
+  build = ':TSUpdate',
   dependencies = {
-    'OXY2DEV/markview.nvim',
-    'nvim-treesitter/nvim-treesitter-textobjects',
+    { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
     { 'Afourcat/treesitter-terraform-doc.nvim', ft = 'terraform', cmd = 'OpenDoc' },
     'nvim-treesitter/nvim-treesitter-context',
     { 'folke/ts-comments.nvim', opts = {} },
@@ -22,29 +21,39 @@ local M = {
       ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml', 'markdown' },
       opts = {},
     },
-    {
-      'atusy/treemonkey.nvim',
-      keys = {
-        {
-          'm',
-          function()
-            require 'nvim-treesitter.configs'
-            ---@diagnostic disable-next-line: missing-fields
-            require('treemonkey').select {
-              ignore_injections = false,
-              action = require('treemonkey.actions').unite_selection,
-            }
-          end,
-          mode = { 'x', 'o' },
-        },
-      },
-    },
   },
   event = 'BufReadPost',
 }
 
 M.opts = {
-  ensure_installed = {
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = 'vn',
+      node_incremental = '<CR>',
+      scope_incremental = '<S-CR>',
+      node_decremental = '<BS>',
+    },
+  },
+  matchup = {
+    enable = true,
+  },
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false,
+  },
+  indent = {
+    enable = true,
+    disable = { 'yaml' },
+  },
+}
+
+M.config = function(_, opts)
+  require('user.menu').add_actions('TreeSitter', actions())
+
+  ---@diagnostic disable-next-line: missing-fields
+  require('nvim-treesitter').setup(opts)
+  require('nvim-treesitter').install {
     'awk',
     'bash',
     'comment',
@@ -90,69 +99,12 @@ M.opts = {
     'vimdoc',
     'xml',
     'yaml',
-  },
+  }
 
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = 'vn',
-      node_incremental = '<CR>',
-      scope_incremental = '<S-CR>',
-      node_decremental = '<BS>',
-    },
-  },
-  matchup = {
-    enable = true,
-  },
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false,
-  },
-  indent = {
-    enable = true,
-    disable = { 'yaml' },
-  },
-}
-
-M.config = function(_, opts)
-  require('user.menu').add_actions('TreeSitter', actions())
-
-  ---@diagnostic disable-next-line: missing-fields
-  require('nvim-treesitter.configs').setup(opts)
   vim.treesitter.language.register('markdown', 'octo')
 
   vim.opt.foldmethod = 'expr'
   vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
-  local function get_custom_foldtxt_suffix(foldstart)
-    local fold_suffix_str = string.format('  %s [%s lines]', '⋯', vim.v.foldend - foldstart + 1)
-
-    return { fold_suffix_str, 'Folded' }
-  end
-
-  local function get_custom_foldtext(foldtxt_suffix, foldstart)
-    local line = vim.api.nvim_buf_get_lines(0, foldstart - 1, foldstart, false)[1]
-
-    return {
-      { line, 'Normal' },
-      foldtxt_suffix,
-    }
-  end
-
-  _G.get_foldtext = function()
-    local foldstart = vim.v.foldstart
-    local ts_foldtxt = vim.treesitter.foldtext()
-    local foldtxt_suffix = get_custom_foldtxt_suffix(foldstart)
-
-    if type(ts_foldtxt) == 'string' then
-      return get_custom_foldtext(foldtxt_suffix, foldstart)
-    else
-      table.insert(ts_foldtxt, foldtxt_suffix)
-      return ts_foldtxt
-    end
-  end
-
-  vim.opt.foldtext = 'v:lua.get_foldtext()'
-  -- vim.opt.foldtext = 'v:lua.vim.treesitter.foldtext()'
 
   -- Treesitter context
   local ts_context = require 'treesitter-context'

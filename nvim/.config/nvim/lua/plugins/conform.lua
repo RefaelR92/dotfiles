@@ -2,7 +2,7 @@ local function get_lsp_formatters(bufnr)
   local formatting_clients = {}
   for _, client in ipairs(vim.lsp.get_clients { bufnr = bufnr }) do
     ---@diagnostic disable-next-line: param-type-mismatch
-    if client.supports_method('textDocument/formatting', bufnr) then
+    if client:supports_method('textDocument/formatting', bufnr) then
       table.insert(formatting_clients, { name = client.name, type = 'lsp' })
     end
   end
@@ -57,7 +57,7 @@ return {
         local lsp_fmts = get_lsp_formatters(vim.api.nvim_get_current_buf())
 
         vim.ui.select(vim.list_extend(lsp_fmts, conform_fmts), {
-          prompt = 'Select LSP client',
+          prompt = 'Select LSP client❯ ',
           title = 'LSP clients',
           format_item = function(client)
             return client.name
@@ -89,7 +89,7 @@ return {
   ---@module "conform"
   ---@type conform.setupOpts
   opts = {
-    log_level = vim.log.levels.DEBUG,
+    log_level = vim.log.levels.INFO,
     formatters_by_ft = {
       Jenkinsfile = { 'npm-groovy-lint' },
       astro = { 'prettierd' },
