@@ -1,8 +1,8 @@
 # Refael Doron's DotFiles
 
-<a href="https://dotfyle.com/refaeldoron/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaeldoron/dotfiles-nvim-config-nvim/badges/plugins?style=flat" /></a>
-<a href="https://dotfyle.com/refaeldoron/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaeldoron/dotfiles-nvim-config-nvim/badges/leaderkey?style=flat" /></a>
-<a href="https://dotfyle.com/refaeldoron/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaeldoron/dotfiles-nvim-config-nvim/badges/plugin-manager?style=flat" /></a>
+<a href="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim/badges/plugins?style=flat" /></a>
+<a href="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim/badges/leaderkey?style=flat" /></a>
+<a href="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim/badges/plugin-manager?style=flat" /></a>
 
 ## Usage
 
@@ -28,7 +28,7 @@
 
    ```bash
    [[ -d ~/Repos ]] || mkdir ~/Repos
-   cd ~ && git clone git@github.com:refaeldoron/dotfiles.git .dotfiles && cd .dotfiles
+   cd ~ && git clone git@github.com:refaelr92/dotfiles.git .dotfiles && cd .dotfiles
    ```
 
 3. Install [antidote](https://antidote.sh/)
