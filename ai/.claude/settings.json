@@ -1,4 +1,5 @@
 {
+  "alwaysThinkingEnabled": true,
   "mcpServers": {
     "aws-knowledge-mcp-server": {
       "args": ["fastmcp", "run", "https://knowledge-mcp.global.api.aws"],
@@ -97,16 +98,6 @@
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "autoApprove": ["sequentialthinking"],
       "command": "npx"
-    }
-  },
-  "nativeMCPServers": {
-    "neovim": {
-      "autoApprove": [
-        "find_files",
-        "list_directory",
-        "read_file",
-        "read_multiple_files"
-      ]
     }
   }
 }
