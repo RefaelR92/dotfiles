@@ -1,16 +1,20 @@
 return {
   'ibhagwan/fzf-lua',
+  cmd = { 'FzfLua' },
   event = 'VeryLazy',
   keys = {
-    { '<c-p>', ':FzfLua files<cr>', silent = true },
-    { '<c-b>', ':FzfLua buffers<cr>', silent = true },
-    { '<leader>el', ':FzfLua files cwd=' .. vim.fs.joinpath(vim.fn.stdpath 'data', 'lazy') .. '<cr>', silent = true },
-    { '<leader>ee', ':FzfLua builtin<cr>', silent = true },
-    { '<leader>hh', ':FzfLua help_tags<cr>', silent = true },
-    { '<leader>i', ':FzfLua oldfiles<cr>', silent = true },
+    { '<c-p>', ':FzfLua files<cr>', desc = 'Browse files', silent = true },
+    { '<c-b>', ':FzfLua buffers<cr>', desc = 'Browse open buffers', silent = true },
+    { '<leader>ee', ':FzfLua builtin<cr>', desc = 'Browse Fzf builtins', silent = true },
+    { '<leader>hh', ':FzfLua help_tags<cr>', desc = 'Browse help tags', silent = true },
+    { '<leader>i', ':FzfLua oldfiles<cr>', desc = 'Browse recent files', silent = true },
+    { '<leader>/', ':FzfLua live_grep<cr>', desc = 'Live Grep', silent = true },
+    { 'z=', ':FzfLua spell_suggest<cr>', desc = 'Spelling suggestions', silent = true },
     {
       '<C-x><C-f>',
-      require('fzf-lua').complete_path,
+      function()
+        require('fzf-lua').complete_path()
+      end,
       mode = 'i',
       silent = true,
       desc = 'Fuzzy complete path',
@@ -18,7 +22,6 @@ return {
     {
       '<F4>',
       function()
-        local utils = require 'fzf-lua.utils'
         local actions = require 'fzf-lua.actions'
 
         require('fzf-lua').git_branches {
@@ -61,7 +64,7 @@ return {
                       return
                     end
                     -- Rename the branch
-                    local toplevel = vim.trim(vim.system({ 'git', 'rev-parse', '--show-toplevel' }, { text = true }):wait().stdout)
+                    local toplevel = require('user.git').get_toplevel_sync()
                     local result = vim.system({ 'git', 'branch', '-m', branch, new_name }, { text = true, cwd = toplevel }):wait()
                     if result.code == 0 then
                       vim.notify('Renamed branch ' .. branch .. ' to ' .. new_name, vim.log.levels.INFO)
@@ -85,7 +88,7 @@ return {
                     return
                   end
                   -- Delete the branch
-                  local toplevel = vim.trim(vim.system({ 'git', 'rev-parse', '--show-toplevel' }, { text = true }):wait().stdout)
+                  local toplevel = require('user.git').get_toplevel_sync()
                   local act = vim.system({ 'git', 'branch', '-D', branch }, { text = true, cwd = toplevel }):wait()
                   local ret, stderr = act.code, act.stderr
                   if ret == 0 then
@@ -118,16 +121,12 @@ return {
           cmd = 'git-branches.zsh',
         }
       end,
-    },
-    {
-      '<leader>/',
-      require('fzf-lua').live_grep,
+      desc = 'Git Branches',
     },
   },
-  cmd = { 'FzfLua', 'ListFilesFromBranch' },
   config = function()
     require('fzf-lua').setup {
-      'default-title',
+      header_separator = '\n',
       fzf_opts = {
         ['--cycle'] = true,
         ['--history'] = vim.fn.stdpath 'data' .. '/fzf-lua-history', -- <C-n> - next, <C-p> - previous
@@ -158,7 +157,9 @@ return {
           ['<C-d>'] = 'preview-page-down',
           ['<C-u>'] = 'preview-page-up',
         },
-        fzf = { ['ctrl-q'] = 'select-all+accept' },
+        fzf = {
+          ['ctrl-q'] = 'select-all+accept',
+        },
       },
     }
 

@@ -1,5 +1,6 @@
 local M = {
   'nvim-lualine/lualine.nvim',
+  enabled = false,
   event = 'VeryLazy',
 }
 
@@ -98,7 +99,7 @@ M.config = function()
       -- Disable sections and component separators
       component_separators = '',
       section_separators = '',
-      theme = 'rose-pine',
+      theme = 'auto',
       icons_enabled = true,
       always_divide_middle = true,
       globalstatus = true,
