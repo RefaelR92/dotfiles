@@ -1,3 +1,5 @@
+# shellcheck disable=2148,2034,2155,1091,2086,1094
+zmodload zsh/zprof
 # ================ #
 # Basic ZSH Config #
 # ================ #
@@ -31,17 +33,6 @@ path=(
   /usr/local/opt/postgresql@15/bin
   $path
 )
-<<<<<<< HEAD
-=======
-
-# Add devops-scripts subdirectories to PATH (only if directory exists)
-if [[ -d "$HOME/Repos/moshe/devops-scripts" ]]; then
-  for i in $HOME/Repos/moshe/devops-scripts/*; do
-    [[ -d "$i" && -x "$i" ]] && path+=("$i")
-  done
-fi
-
->>>>>>> 7648140e1e71d5f7e949267319cddd8b80315acd
 export PATH
 export XDG_CONFIG_HOME=${HOME}/.config
 unset ZSH_AUTOSUGGEST_USE_ASYNC
@@ -59,9 +50,7 @@ export ASDF_PYTHON_DEFAULT_PACKAGES_FILE=~/.dotfiles/requirements.txt
 
 source $HOME/.antidote/antidote.zsh
 antidote load
-
-# Defer expensive initializations for faster startup
-zsh-defer eval "$(zoxide init zsh --cmd cd)"
+eval "$(zoxide init zsh --cmd cd)"
 
 # ================ #
 #  PS1 and Random  #
@@ -73,18 +62,17 @@ export cdpath=(. ~ ~/Repos)
 export TMPDIR=$HOME/tmp
 
 # zsh gh copilot configuration
-zsh-defer -c '
-  bindkey "^[|" zsh_gh_copilot_explain
-  bindkey "^[\\" zsh_gh_copilot_suggest
-'
+bindkey '^[|' zsh_gh_copilot_explain # bind Alt+shift+\ to explain
+bindkey '^[\' zsh_gh_copilot_suggest # bind Alt+\ to suggest
 
 # ===================== #
 # Aliases and Functions #
 # ===================== #
+
 for ZSH_FILE in "${ZDOTDIR:-$HOME}"/zsh.d/*.zsh(N); do
     source "${ZSH_FILE}"
 done
-[[ -f $HOME/corp-aliases.sh ]] && zsh-defer source $HOME/corp-aliases.sh
+[[ -f $HOME/corp-aliases.sh ]] && source $HOME/corp-aliases.sh
 
 
 # ================ #
@@ -95,29 +83,10 @@ export KUBECONFIG=$HOME/.kube/config
 export KUBECTL_EXTERNAL_DIFF="kdiff"
 export KUBERNETES_EXEC_INFO='{"apiVersion": "client.authentication.k8s.io/v1beta1"}'
 
-# Starship prompt (loaded synchronously as it's needed immediately)
 eval "$(starship init zsh)"
 
-<<<<<<< HEAD
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/refaeldoron/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/refaeldoron/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/refaeldoron/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/refaeldoron/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
-=======
-export K8S_DEV=true
-export PR_REVIEW_DEV=true
-export CMP_COMPLETION='<C-Space>'
-export PJ_DIRS='~/Repos/,~/.dotfiles,~/Repos/moshe/'
-
-# ==================== #
-# MCP Servers Sync     #
-# ==================== #
-# Sync MCP servers from mcphub to Claude (once per day, background)
-MCP_SYNC_TIMESTAMP="$HOME/.cache/mcp-sync-last-run"
-if [[ ! -f "$MCP_SYNC_TIMESTAMP" ]] || [[ "$(date +%Y%m%d)" != "$(date -r "$MCP_SYNC_TIMESTAMP" +%Y%m%d 2>/dev/null)" ]]; then
-  (
-    ~/.dotfiles/ai/sync-mcp-servers.sh 2>/dev/null && touch "$MCP_SYNC_TIMESTAMP"
-  ) &|
-fi
->>>>>>> 7648140e1e71d5f7e949267319cddd8b80315acd
