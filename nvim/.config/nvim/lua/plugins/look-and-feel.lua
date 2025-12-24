@@ -42,6 +42,10 @@ local M = {
         },
       },
     },
+    config = function(_, opts)
+      require('nvim-web-devicons').setup(opts)
+      require('nvim-web-devicons').set_icon_by_filetype { fugitive = 'git' }
+    end,
   },
   {
     'eero-lehtinen/oklch-color-picker.nvim',
@@ -51,19 +55,8 @@ local M = {
       },
     },
     keys = {
-      { '<Leader>pc', '<cmd>lua require("oklch-color-picker").pick_under_cursor()<CR>' },
+      { '<Leader>pc', '<cmd>lua require("oklch-color-picker").pick_under_cursor()<CR>', desc = 'Pick color under cursor' },
     },
-  },
-  {
-    'dstein64/vim-startuptime',
-    cmd = 'Startup Time (:StartupTime)',
-    init = function()
-      require('user.menu').add_actions(nil, {
-        ['StartupTime'] = function()
-          vim.cmd [[StartupTime]]
-        end,
-      })
-    end,
   },
   {
     'luukvbaal/statuscol.nvim',
@@ -111,6 +104,14 @@ local M = {
   {
     'vim-scripts/CursorLineCurrentWindow',
     event = 'BufReadPost',
+  },
+  {
+    -- Make sure to set this up properly if you have lazy=true
+    'MeanderingProgrammer/render-markdown.nvim',
+    opts = {
+      file_types = { 'markdown', 'Avante' },
+    },
+    ft = { 'markdown', 'Avante' },
   },
 }
 

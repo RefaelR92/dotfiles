@@ -74,11 +74,26 @@ config.min_scroll_bar_height = '2cell'
 config.native_macos_fullscreen_mode = true
 
 -- background
-config.background = {
-  {
-    source = {
-      File = HOME .. '/Pictures/wallpaperflare1.jpg',
+local wallpaper_path = HOME .. '/Pictures/wallpaperflare1.jpg'
+local wallpaper_file = io.open(wallpaper_path, 'r')
+if wallpaper_file then
+  wallpaper_file:close()
+  config.background = {
+    {
+      source = {
+        File = wallpaper_path,
+      },
+      repeat_y = 'NoRepeat',
+      hsb = {
+        brightness = 0.17,
+        hue = 1.0,
+        saturation = 1.0,
+      },
+      height = 'Cover',
+      width = 'Contain',
+      opacity = 1.0,
     },
+<<<<<<< HEAD
     repeat_y = 'NoRepeat',
     hsb = {
       brightness = 0.03,
@@ -91,6 +106,11 @@ config.background = {
   },
 }
 config.macos_window_background_blur = 50
+=======
+  }
+  config.macos_window_background_blur = 50
+end
+>>>>>>> 7648140e1e71d5f7e949267319cddd8b80315acd
 
 -- mouse
 config.mouse_bindings = {

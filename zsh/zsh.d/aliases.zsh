@@ -1,4 +1,7 @@
 #!/bin/zsh
+# Guard against re-loading
+[[ -n "$LOADED_ALIASES" ]] && return
+
 #------------------------------------------------------------------------------
 # Core System Command Overrides
 #------------------------------------------------------------------------------
@@ -6,7 +9,6 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias sed=gsed
-alias grep=ggrep
 alias sort=gsort
 alias awk=gawk
 
@@ -18,7 +20,6 @@ alias ls='eza '
 alias dc='cd '
 alias dotfiles='cd ~/.dotfiles'
 alias dot='cd ~/.dotfiles'
-alias pj='fdf "$(sed '\''s/,/ /g'\'' <<<${PJ_DIRS:-~/Repos/,~/.dotfiles})"'
 alias lazy='fdf ~/.local/share/nvim/lazy/'
 alias repos="~/Repos"
 
