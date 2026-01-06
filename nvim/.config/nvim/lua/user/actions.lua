@@ -1,5 +1,5 @@
-local utils = require 'user.utils'
-local pretty_print = utils.pretty_print
+local T = vim.keycode
+local leader = T '<leader>'
 local find_in_project = function(opts)
   opts = opts or {
     literal_search = true,
@@ -28,7 +28,7 @@ local search_and_replace = function(literal_search)
       vim.defer_fn(function()
         vim.ui.input({ prompt = 'Enter Replace term❯ ' }, function(replace_term)
           if not replace_term then
-            pretty_print 'Canceled.'
+            vim.notify('Canceled.', vim.log.levels.INFO, { title = 'Search and Replace' })
             return
           end
           vim.defer_fn(function()
@@ -37,7 +37,7 @@ local search_and_replace = function(literal_search)
               default = 'gce',
             }, function(flags)
               if not flags then
-                pretty_print 'Canceled.'
+                vim.notify('Canceled.', vim.log.levels.INFO, { title = 'Search and Replace' })
                 return
               end
               vim.cmd('silent noautocmd cdo %s?' .. search_term .. '?' .. replace_term .. '?' .. flags)
@@ -49,8 +49,6 @@ local search_and_replace = function(literal_search)
     noautocmd = true,
   }
 end
-
-local T = vim.keycode
 
 return {
   ['Find in pwd (literal search) (<C-f>)'] = function()
@@ -66,7 +64,7 @@ return {
     search_and_replace(false)
   end,
   ['Replace word under cursor (<leader>r)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'r')
+    vim.fn.feedkeys(leader .. 'r')
   end,
   ['Select all (vae / <leader>sa)'] = function()
     vim.cmd [[normal! ggVG]]
@@ -89,7 +87,7 @@ return {
   ['[Terraform] Remove terragrunt files'] = function()
     require('lazy').load { plugins = { 'vim-fugitive' } }
     local scan_dir = require 'plenary.scandir'
-    local terraform_repo = vim.fn.FugitiveExecute({ 'rev-parse', '--show-toplevel' }).stdout
+    local terraform_repo = require('user.git').get_toplevel_sync()
     scan_dir.scan_dir(terraform_repo, {
       add_dirs = false,
       respect_gitignore = false,
@@ -110,7 +108,7 @@ return {
     ]]
     -- set q register to -target
     vim.fn.setreg('q', [[yss'I-target=A \j]])
-    pretty_print('Macro q set to -target', 'Terraform')
+    vim.notify('Macro q set to -target', vim.log.levels.INFO, { title = 'Terraform' })
   end,
   ['Basic groovy format'] = function()
     vim.cmd.BasicGroovyFormat()
@@ -121,8 +119,7 @@ return {
   ['Autocommand to reload the lua file nvim'] = function()
     if vim.api.nvim_get_option_value('filetype', { buf = 0 }) ~= 'lua' then
       ---@diagnostic disable-next-line: param-type-mismatch
-      pretty_print('Filetype is not lua!', [[🖥️]], vim.log.levels.ERROR)
-      return
+      vim.notify('Filetype is not lua!', vim.log.levels.ERROR, { title = '🖥️' })
     end
 
     local text = [[
@@ -130,19 +127,19 @@ return {
 -- Reload the file when it changes on disk
 local group = vim.api.nvim_create_augroup("ReloadModule", {clear = true})
 vim.api.nvim_create_autocmd("BufWritePost", {
-	buffer = 0,
-	group = group,
-	callback = function()
-		vim.cmd("luafile %")
-		vim.notify("Module reloaded")
-	end,
+  buffer = 0,
+  group = group,
+  callback = function()
+    vim.cmd("luafile %")
+    vim.notify("Module reloaded")
+  end,
 })
 
 vim.keymap.set('n', 'bla', function()
   vim.notify('hello!')
 end)
     ]]
-    -- prepend those lines to the beggining of the file
+    -- prepend those lines to the beginning of the file
     vim.api.nvim_buf_set_lines(0, 0, 0, false, vim.split(text, '\n'))
     vim.cmd.write()
     vim.cmd 'luafile %'
@@ -162,8 +159,8 @@ end)
         macro_letter = 'q'
       end
       vim.fn.feedkeys('q' .. macro_letter)
-      pretty_print('Recording macro ' .. macro_letter .. ' (hit q when finished)', 'Macro')
-      pretty_print('You can repeat this macro with @' .. macro_letter, 'Macro')
+      vim.notify('Recording macro ' .. macro_letter .. ' (hit q when finished)', vim.log.levels.INFO, { title = 'Macro' })
+      vim.notify('You can repeat this macro with @' .. macro_letter, vim.log.levels.INFO, { title = 'Macro' })
     end)
   end,
   ['Repeat Macro (@{letter} / Q)'] = function()
@@ -184,7 +181,7 @@ end)
     if ft == '' then
       vim.ui.select(vim.fn.getcompletion('', 'filetype'), { prompt = 'Filetype❯ ' }, function(selected)
         if not selected then
-          pretty_print 'Canceled.'
+          vim.notify('Canceled.', vim.log.levels.INFO, { title = 'Save as temp' })
           return
         end
         vim.cmd('set filetype=' .. selected)
@@ -220,7 +217,7 @@ end)
     vim.fn.feedkeys 'Y'
   end,
   ['Convert \\n to new lines (<leader><cr>)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. T '<cr>')
+    vim.fn.feedkeys(leader .. T '<cr>')
   end,
   ['Move line down (-)'] = function()
     vim.fn.feedkeys '-'
@@ -232,19 +229,19 @@ end)
     vim.o.wrap = not vim.o.wrap
   end,
   ['Copy full file path to clipboard (<leader>cfa)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'cfa')
+    vim.fn.feedkeys(leader .. 'cfa')
   end,
   ['Copy relative file path to clipboard (<leader>cfp)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'cfp')
+    vim.fn.feedkeys(leader .. 'cfp')
   end,
   ['Copy directory path to clipboard (<leader>cfd)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'cfd')
+    vim.fn.feedkeys(leader .. 'cfd')
   end,
   ['Copy file name to clipboard (<leader>cfn)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'cfn')
+    vim.fn.feedkeys(leader .. 'cfn')
   end,
   ['Split long bash line (<leader>\\'] = function()
-    vim.fn.feedkeys(T '<leader>' .. [[\]])
+    vim.fn.feedkeys(leader .. [[\]])
   end,
   ['[YAML] Yaml to Json (:Yaml2Json)'] = function()
     vim.cmd.Yaml2Json()
@@ -256,7 +253,7 @@ end)
     vim.cmd.Json2Yaml()
   end,
   ['Change indent size (<leader>cii)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'cii')
+    vim.fn.feedkeys(leader .. 'cii')
   end,
   ['Convert tabs to spaces (<leader>ct<SPC>)'] = function()
     local original_expandtab = vim.opt_global.expandtab:get()
@@ -265,6 +262,6 @@ end)
     vim.opt.expandtab = original_expandtab
   end,
   ['[Diff] unsaved with saved file (<leader>ds)'] = function()
-    vim.fn.feedkeys(T '<leader>' .. 'ds')
+    vim.fn.feedkeys(leader .. 'ds')
   end,
 }

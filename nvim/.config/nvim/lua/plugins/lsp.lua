@@ -1,7 +1,35 @@
 local M = {
   {
     'neovim/nvim-lspconfig',
-    event = { 'BufReadPre', 'BufNewFile' },
+    event = 'VeryLazy',
+    config = require('user.lsp.config').setup,
+    dependencies = {
+      'nvimtools/none-ls.nvim',
+      'mason-org/mason.nvim',
+    },
+  },
+  {
+    'j-hui/fidget.nvim',
+    event = 'LspAttach',
+    opts = {
+      progress = {
+        display = {
+          progress_icon = { pattern = 'moon', period = 1 },
+        },
+      },
+    },
+  },
+  {
+    'SmiteshP/nvim-navic',
+    event = 'LspAttach',
+    opts = {
+      highlight = true,
+    },
+    config = function(_, opts)
+      local navic = require 'nvim-navic'
+      navic.setup(opts)
+      vim.o.winbar = "%{%v:lua.require'nvim-navic'.get_location()%}"
+    end,
   },
   {
     'mason-org/mason.nvim',
@@ -18,21 +46,26 @@ local M = {
 
       -- Ensure the servers always installed
       local packages = {
+        'actionlint',
         'bash-debug-adapter',
         'bash-language-server',
         'black',
         'cbfmt',
+        'checkmake',
+        'codespell',
         'css-lsp',
         'cssmodules-language-server',
         'debugpy',
         'docker-compose-language-service',
         'dockerfile-language-server',
         'eslint_d',
+        'gitleaks',
         'golangci-lint',
         'groovy-language-server',
         'hadolint',
         'helm-ls',
         'html-lsp',
+        'isort',
         'json-lsp',
         'lua-language-server',
         'markdownlint',
@@ -45,12 +78,14 @@ local M = {
         'shellcheck',
         'shfmt',
         'stylua',
-        'taplo',
         'terraform-ls',
+        'tombi',
+        'trivy',
         'typescript-language-server',
         'vim-language-server',
         'vint',
         'vtsls',
+        'write-good',
         'yaml-language-server',
       }
       local mr = require 'mason-registry'
@@ -62,43 +97,22 @@ local M = {
       end
     end,
   },
-}
 
-M[1].init = require('user.lsp.config').init
-M[1].config = require('user.lsp.config').setup
-
-M[1].dependencies = {
-  'nvimtools/none-ls.nvim',
-  'mason-org/mason.nvim',
+  -- language_specific_plugins
   {
-    'j-hui/fidget.nvim',
-    opts = {
-      progress = {
-        display = {
-          progress_icon = { pattern = 'moon', period = 1 },
-        },
-      },
+    'cuducos/yaml.nvim',
+    cmd = {
+      'YAMLFzfLua',
+      'YAMLQuickfix',
+      'YAMLView',
+      'YAMLYank',
+      'YAMLYankKey',
+      'YAMLYankValue',
     },
   },
-  {
-    'SmiteshP/nvim-navic',
-    lazy = true,
-    opts = {
-      highlight = true,
-    },
-    config = function(_, opts)
-      local navic = require 'nvim-navic'
-      navic.setup(opts)
-      vim.o.winbar = "%{%v:lua.require'nvim-navic'.get_location()%}"
-    end,
-  },
-}
-
-local language_specific_plugins = {
-  { 'cuducos/yaml.nvim', ft = 'yaml' },
   {
     'phelipetls/jsonpath.nvim',
-    ft = 'json',
+    cmd = 'JsonPath',
     config = function()
       vim.api.nvim_buf_create_user_command(0, 'JsonPath', function()
         ---@diagnostic disable-next-line: missing-parameter
@@ -118,7 +132,7 @@ local language_specific_plugins = {
     'mosheavni/yaml-companion.nvim',
     ft = 'yaml',
     config = function()
-      vim.keymap.set('n', '<leader>cc', ":lua require('yaml-companion').open_ui_select()<cr>", { remap = false, silent = true })
+      vim.keymap.set('n', '<leader>cs', ":lua require('yaml-companion').open_ui_select()<cr>", { remap = false, silent = true })
       require('user.menu').add_actions('YAML', {
         ['Change Schema'] = function()
           require('yaml-companion').open_ui_select()
@@ -129,7 +143,7 @@ local language_specific_plugins = {
   { 'b0o/SchemaStore.nvim', lazy = true },
   {
     'folke/lazydev.nvim',
-    ft = 'lua', -- only load on lua files
+    ft = 'lua',
     dependencies = {
       'DrKJeff16/wezterm-types',
     },
@@ -138,18 +152,13 @@ local language_specific_plugins = {
         -- See the configuration section for more details
         -- Load luvit types when the `vim.uv` word is found
         { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
-        { path = 'snacks.nvim', words = { 'Snacks' } },
         { path = 'wezterm-types', mods = { 'wezterm' } },
       },
     },
   },
   {
     'ray-x/go.nvim',
-    dependencies = { -- optional packages
-      'ray-x/guihua.lua',
-      'neovim/nvim-lspconfig',
-      'nvim-treesitter/nvim-treesitter',
-    },
+    dependencies = { 'ray-x/guihua.lua' },
     opts = {
       lsp_cfg = true,
       lsp_gofumpt = true,
@@ -169,13 +178,9 @@ local language_specific_plugins = {
         group = format_sync_grp,
       })
     end,
-    event = { 'CmdlineEnter' },
     ft = { 'go', 'gomod' },
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
 }
 
-return {
-  M,
-  language_specific_plugins,
-}
+return M

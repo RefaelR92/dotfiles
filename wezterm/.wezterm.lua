@@ -2,7 +2,6 @@
 local wezterm = require 'wezterm'
 local act = wezterm.action
 
----@type Config
 local config = wezterm.config_builder()
 local HOME = os.getenv 'HOME'
 
@@ -16,12 +15,9 @@ config.webgpu_power_preference = 'HighPerformance'
 config.scrollback_lines = 10000
 
 -- font
-config.harfbuzz_features = {
-  'calt=1',
-  'clig=1',
-  'liga=1',
-}
-config.font = wezterm.font_with_fallback { { family = 'CaskaydiaCove Nerd Font', weight = 'DemiBold' } }
+-- ligatures: != === ---- ~~ ~> ~~> => ==> -> --> <-- <- <== <~ <~~ << >> <= >=
+config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
+config.font = wezterm.font_with_fallback { { family = 'CaskaydiaCove Nerd Font' } }
 config.font_size = 16
 config.freetype_load_target = 'Normal'
 config.custom_block_glyphs = false
@@ -74,23 +70,28 @@ config.min_scroll_bar_height = '2cell'
 config.native_macos_fullscreen_mode = true
 
 -- background
-config.background = {
-  {
-    source = {
-      File = HOME .. '/Pictures/wallpaperflare1.jpg',
+local wallpaper_path = HOME .. '/Pictures/wallpaperflare1.jpg'
+local wallpaper_file = io.open(wallpaper_path, 'r')
+if wallpaper_file then
+  wallpaper_file:close()
+  config.background = {
+    {
+      source = {
+        File = wallpaper_path,
+      },
+      repeat_y = 'NoRepeat',
+      hsb = {
+        brightness = 0.03,
+        hue = 1.0,
+        saturation = 1.0,
+      },
+      height = 'Cover',
+      width = 'Contain',
+      opacity = 1.0,
     },
-    repeat_y = 'NoRepeat',
-    hsb = {
-      brightness = 0.03,
-      hue = 1.0,
-      saturation = 1.0,
-    },
-    height = 'Cover',
-    width = 'Contain',
-    opacity = 1.0,
-  },
-}
-config.macos_window_background_blur = 50
+  }
+  config.macos_window_background_blur = 50
+end
 
 -- mouse
 config.mouse_bindings = {

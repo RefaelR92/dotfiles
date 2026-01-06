@@ -1,5 +1,3 @@
-# shellcheck disable=2148,2034,2155,1091,2086,1094
-zmodload zsh/zprof
 # ================ #
 # Basic ZSH Config #
 # ================ #
@@ -50,7 +48,9 @@ export ASDF_PYTHON_DEFAULT_PACKAGES_FILE=~/.dotfiles/requirements.txt
 
 source $HOME/.antidote/antidote.zsh
 antidote load
-eval "$(zoxide init zsh --cmd cd)"
+
+# Defer expensive initializations for faster startup
+zsh-defer eval "$(zoxide init zsh --cmd cd)"
 
 # ================ #
 #  PS1 and Random  #
@@ -62,18 +62,18 @@ export cdpath=(. ~ ~/Repos)
 export TMPDIR=$HOME/tmp
 
 # zsh gh copilot configuration
-bindkey '^[|' zsh_gh_copilot_explain # bind Alt+shift+\ to explain
-bindkey '^[\' zsh_gh_copilot_suggest # bind Alt+\ to suggest
+zsh-defer -c '
+  bindkey "^[|" zsh_gh_copilot_explain
+  bindkey "^[\\" zsh_gh_copilot_suggest
+'
 
 # ===================== #
 # Aliases and Functions #
 # ===================== #
-
 for ZSH_FILE in "${ZDOTDIR:-$HOME}"/zsh.d/*.zsh(N); do
     source "${ZSH_FILE}"
 done
-[[ -f $HOME/corp-aliases.sh ]] && source $HOME/corp-aliases.sh
-
+[[ -f $HOME/corp-aliases.sh ]] && zsh-defer source $HOME/corp-aliases.sh
 
 # ================ #
 # Kubectl Contexts #
@@ -83,10 +83,21 @@ export KUBECONFIG=$HOME/.kube/config
 export KUBECTL_EXTERNAL_DIFF="kdiff"
 export KUBERNETES_EXEC_INFO='{"apiVersion": "client.authentication.k8s.io/v1beta1"}'
 
+# ==================== #
+# MCP Servers Sync     #
+# ==================== #
+# Sync MCP servers from mcphub to Claude (once per day, background)
+MCP_SYNC_TIMESTAMP="$HOME/.cache/mcp-sync-last-run"
+if [[ ! -f "$MCP_SYNC_TIMESTAMP" ]] || [[ "$(date +%Y%m%d)" != "$(date -r "$MCP_SYNC_TIMESTAMP" +%Y%m%d 2>/dev/null)" ]]; then
+  (
+    ~/.dotfiles/ai/sync-mcp-servers.sh 2>/dev/null && touch "$MCP_SYNC_TIMESTAMP"
+  ) &|
+fi
+
+# Starship prompt (loaded synchronously as it's needed immediately)
 eval "$(starship init zsh)"
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/refaeldoron/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/refaeldoron/Downloads/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/refaeldoron/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/refaeldoron/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+export K8S_DEV=false
+export PR_REVIEW_DEV=false
+export CMP_COMPLETION='<M-Space>'
+export PJ_DIRS='~/Repos/,~/.dotfiles'

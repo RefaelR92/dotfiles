@@ -52,7 +52,7 @@ function! SarToggleChar(char) abort
   else
     " add the flag
     let new_flags = ''
-    for flag in available_flags
+    for flag in s:available_flags
       if cmd_flags =~ flag || a:char == flag
         let new_flags .= flag
       endif
@@ -92,7 +92,7 @@ function! SarToggleAllFile() abort
   let cmd_splitted = split(cmd, sep, 1)
   let all_file = cmd_splitted[0]
   let all_file = all_file ==# '%s' ? '.,$s' :
-               \ all_file ==# '.,$s' ? '0,.s' : '%s'
+      \ all_file ==# '.,$s' ? '0,.s' : '%s'
   let cmd_splitted[0] = all_file
 
   let cmd = join(cmd_splitted, sep)

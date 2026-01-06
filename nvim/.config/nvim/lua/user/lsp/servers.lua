@@ -17,7 +17,6 @@ M.setup = function()
     'jsonls',
     'lua_ls',
     'pyright',
-    'taplo',
     'terraformls',
     'vimls',
     'vtsls',
@@ -46,6 +45,7 @@ M.setup = function()
 
   vim.lsp.config('lua_ls', {
     root_markers = {
+      '.git',
       '.luarc.json',
       '.luarc.jsonc',
       '.luacheckrc',
@@ -54,7 +54,6 @@ M.setup = function()
       'stylua.toml',
       'stylelua.toml',
       'selene.toml',
-      'selene.yml',
     },
 
     settings = {
@@ -66,44 +65,26 @@ M.setup = function()
           disable = { 'undefined-global' },
           globals = { 'vim' },
         },
+        workspace = {
+          library = {
+            vim.env.VIMRUNTIME,
+            '${3rd}/luv/library',
+            '${3rd}/busted/library',
+          },
+          checkThirdParty = false,
+        },
+        telemetry = { enable = false },
       },
     },
   })
 
   vim.lsp.config('terraformls', {
-    on_attach = function(c)
+    on_attach = function()
       require('user.terraform-docs').setup {}
       -- c.server_capabilities.semanticTokensProvider = {}
       vim.o.commentstring = '# %s'
     end,
   })
-
-  -- local yaml_cfg = {
-  --   yaml = {
-  --     format = {
-  --       bracketSpacing = false,
-  --     },
-  --     -- schemas = require('schemastore').yaml.schemas(),
-  --     -- schemas = vim.tbl_deep_extend('force', { [require('kubernetes').yamlls_schema()] = '*.yaml' }, require('schemastore').yaml.schemas()),
-  --     schemaStore = {
-  --       -- Must disable built-in schemaStore support to use
-  --       -- schemas from SchemaStore.nvim plugin
-  --       enable = false,
-  --       -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
-  --       url = '',
-  --     },
-  --     schemas = {},
-  --   },
-  -- }
-  -- vim.lsp.config('yamlls', {
-  --   capabilities = vim.tbl_deep_extend('force', capabilities, {
-  --     textDocument = {
-  --       foldingRange = {
-  --         dynamicRegistration = true,
-  --       },
-  --     },
-  --   }),
-  -- })
 
   local yaml_cfg = require('user.lsp.yaml').setup { capabilities = capabilities }
 

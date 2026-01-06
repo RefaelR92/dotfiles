@@ -9,6 +9,7 @@ local M = {
     init = function()
       -- `matchparen.vim` needs to be disabled manually in case of lazy loading
       vim.g.loaded_matchparen = 1
+      vim.g.matchup_matchparen_offscreen = { method = 'status_manual' }
     end,
   },
   {
@@ -19,18 +20,49 @@ local M = {
   {
     'iamcco/markdown-preview.nvim',
     build = 'cd app && yarn install',
-    config = function()
-      vim.g.mkdp_filetypes = { 'markdown' }
-    end,
+    config = function() vim.g.mkdp_filetypes = { 'markdown' } end,
     cmd = 'MarkdownPreview',
     ft = 'markdown',
     init = function()
       require('user.menu').add_actions('Markdown', {
-        ['Preview in Browser'] = function()
-          vim.cmd.MarkdownPreview()
-        end,
+        ['Preview in Browser'] = function() vim.cmd.MarkdownPreview() end,
       })
     end,
+  },
+  {
+    'mosheavni/github-pr-reviewer.nvim',
+    dev = vim.env.PR_REVIEW_DEV == 'true',
+    opts = {
+      -- Key to mark file as viewed and go to next file (only works in review mode)
+      mark_as_viewed_key = '<CR>',
+
+      -- Key to toggle between unified and split diff view (only works in review mode)
+      diff_view_toggle_key = '<C-v>',
+
+      -- Key to toggle floating windows visibility (only works in review mode)
+      toggle_floats_key = '<C-r>',
+
+      -- Key to jump to next hunk (only works in review mode)
+      next_hunk_key = ']c',
+
+      -- Key to jump to previous hunk (only works in review mode)
+      prev_hunk_key = '[c',
+
+      -- Key to go to next modified file (only works in review mode)
+      next_file_key = ']q',
+
+      -- Key to go to previous modified file (only works in review mode)
+      prev_file_key = '[q',
+    },
+    keys = {
+      { '<leader>pr', '<cmd>PRReviewMenu<cr>', desc = 'PR Review Menu' },
+      {
+        '<leader>pr',
+        ":<C-u>'<,'>PRSuggestChange<CR>",
+        desc = 'Suggest change',
+        mode = 'v',
+      },
+    },
   },
   {
     'gbprod/yanky.nvim',
@@ -54,9 +86,7 @@ local M = {
     },
     init = function()
       require('user.menu').add_actions('Yanky', {
-        ['Yank history'] = function()
-          vim.cmd 'YankyRingHistory'
-        end,
+        ['Yank history'] = function() vim.cmd('YankyRingHistory') end,
       })
     end,
   },
@@ -82,9 +112,7 @@ local M = {
         preview_split = 'right',
         -- This is the config that will be passed to nvim_open_win.
         -- Change values here to customize the layout
-        override = function(conf)
-          return conf
-        end,
+        override = function(conf) return conf end,
       },
       view_options = {
         -- Show files and directories that start with "."
@@ -109,11 +137,13 @@ local M = {
         enter = function()
           vim.keymap.set('n', '<leader>l', '<cmd>Leet<cr>')
           vim.keymap.set('n', '<leader>lr', function()
-            vim.ui.select({ 'easy', 'medium', 'hard' }, { prompt = 'Choose difficulty for a random leet❯ ' }, function(level)
-              vim.cmd('Leet random difficulty=' .. level)
-            end)
+            vim.ui.select(
+              { 'easy', 'medium', 'hard' },
+              { prompt = 'Choose difficulty for a random leet❯ ' },
+              function(level) vim.cmd('Leet random difficulty=' .. level) end
+            )
           end, { remap = false })
-          require('lazy').load { plugins = { 'copilot.lua' } }
+          require('lazy').load({ plugins = { 'copilot.lua' } })
         end,
         ['question_enter'] = function()
           vim.keymap.set('n', '<c-cr>', '<cmd>Leet run<CR>', { buffer = true })
@@ -123,17 +153,10 @@ local M = {
     },
   },
   {
-    'jiaoshijie/undotree',
-    dependencies = 'nvim-lua/plenary.nvim',
-    opts = {},
-    keys = { -- load the plugin only when using it's keybinding:
-      { '<leader>u', "<cmd>lua require('undotree').toggle()<cr>" },
-    },
-  },
-  {
     'mrjones2014/smart-splits.nvim',
     config = function()
-      require('smart-splits').setup()
+      ---@diagnostic disable-next-line: missing-fields
+      require('smart-splits').setup({})
       vim.keymap.set('n', '<A-h>', require('smart-splits').resize_left)
       vim.keymap.set('n', '<A-j>', require('smart-splits').resize_down)
       vim.keymap.set('n', '<A-k>', require('smart-splits').resize_up)

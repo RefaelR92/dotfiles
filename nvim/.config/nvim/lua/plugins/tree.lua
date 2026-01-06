@@ -5,6 +5,32 @@ local SORT_METHODS = {
   'modification_time',
   'extension',
 }
+
+-- Create hints instance
+local Hints = require 'user.hints'
+local hints = Hints.new('Nvim-tree - Available Keymaps', {
+  { key = '<CR>', desc = 'Open file/directory' },
+  { key = 'v', desc = 'Open in vertical split' },
+  { key = 'i', desc = 'Open in horizontal split' },
+  { key = 'x', desc = 'Close directory' },
+  { key = 'h/l', desc = 'Navigate left/right (collapse/expand)' },
+  { key = 'a', desc = 'Create file/directory' },
+  { key = 'd', desc = 'Delete file/directory' },
+  { key = 'r', desc = 'Move file to location' },
+  { key = 'c', desc = 'Copy file' },
+  { key = 'Y', desc = 'Copy relative path' },
+  { key = 'gy', desc = 'Copy absolute path' },
+  { key = 'J/K', desc = 'Toggle bookmark down/up' },
+  { key = 'dd', desc = 'Cut bookmarked file(s)' },
+  { key = 'yy', desc = 'Copy bookmarked file(s)' },
+  { key = 'p', desc = 'Paste' },
+  { key = 'mv', desc = 'Move bookmarked files' },
+  { key = 'cd', desc = 'Change root to node' },
+  { key = 'T', desc = 'Cycle sort method' },
+  { key = 'Z', desc = 'Extract archive' },
+  { key = 'g?', desc = 'Show help' },
+})
+
 local function on_attach(bufnr)
   local api = require 'nvim-tree.api'
 
@@ -140,17 +166,31 @@ local function on_attach(bufnr)
     end
     vim.notify('Extracted: ' .. file_path)
   end, opts 'Extract File')
+
+  -- Show hints when entering nvim-tree buffer/window
+  vim.api.nvim_create_autocmd({ 'BufEnter', 'WinEnter' }, {
+    buffer = bufnr,
+    callback = function()
+      hints.show()
+    end,
+  })
+
+  -- Hide hints when leaving nvim-tree buffer/window
+  vim.api.nvim_create_autocmd({ 'BufLeave', 'WinLeave' }, {
+    buffer = bufnr,
+    callback = function()
+      hints.close()
+    end,
+  })
 end
 
 local M = {
   'nvim-tree/nvim-tree.lua',
   cmd = { 'NvimTreeToggle', 'NvimTreeOpen', 'NvimTreeFocus', 'NvimTreeRefresh' },
-  keys = { '<c-o>', '<leader>v' },
-}
-
-M.keys = {
-  { '<leader>v', ':lua require("nvim-tree.api").tree.find_file { open = true, focus = true }<cr>', silent = true, desc = 'Open Tree under current file' },
-  { '<c-o>', ':lua require("nvim-tree.api").tree.toggle()<cr>', silent = true, desc = 'Open Tree' },
+  keys = {
+    { '<leader>v', ':lua require("nvim-tree.api").tree.find_file { open = true, focus = true }<cr>', silent = true, desc = 'Open Tree under current file' },
+    { '<c-o>', ':lua require("nvim-tree.api").tree.toggle()<cr>', silent = true, desc = 'Open Tree' },
+  },
 }
 
 M.config = function()
@@ -216,8 +256,7 @@ M.config = function()
         events.subscribe(events.Event.NodeRenamed, function(data)
           if prev.new_name ~= data.new_name or prev.old_name ~= data.old_name then
             data = data
-            -- selene: allow(undefined_variable)
-            Snacks.rename.on_rename_file(data.old_name, data.new_name)
+            require('snacks').rename.on_rename_file(data.old_name, data.new_name)
           end
         end)
       end,
