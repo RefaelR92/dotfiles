@@ -17,7 +17,8 @@ git merge moshe/master
 Handle conflicts if any, then commit, review the changes and push.
 
 > [!NOTE]
-> Don't forget to checkout back to your `master` branch after merging.
+> Don't forget to checkout back to your `master` branch after merging. (and `git
+pull`)
 
 ## Neovim and related plugins
 
