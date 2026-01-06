@@ -1,6 +1,6 @@
 [core]
   excludesfile = ~/.gitignore_global
-  pager = nvim -R +'set ft=diff' +'set nomodifiable' +'nnoremap q :q!<CR>'
+  pager        = delta
   editor       = nvim
 
 [user]
@@ -12,6 +12,9 @@
 
 [pull]
   rebase = false
+
+[push]
+  autoSetupRemote = true
 
 [help]
   autocorrect = 1
@@ -31,10 +34,11 @@
   diffFilter = vim -c "packadd nvim.difftool" -c "DiffTool"
 
 [diff]
-    tool = nvim_difftool
+  tool = nvim_difftool
+  colorMoved = zebra
 
 [difftool "nvim_difftool"]
-    cmd = nvim -c "packadd nvim.difftool" -c "DiffTool $LOCAL $REMOTE"
+  cmd = nvim -c "packadd nvim.difftool" -c "DiffTool $LOCAL $REMOTE"
 
 [delta]
   features     = decorations arctic-fox
@@ -92,9 +96,6 @@
 
 [merge]
   conflictstyle = diff3
-
-[diff]
-  colorMoved = default
 
 [color]
   branch      = true

@@ -1,5 +1,3 @@
-vim.o.compatible = false
-vim.g.python3_host_prog = 'python3'
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 
@@ -18,7 +16,13 @@ vim.o.titlestring = '%{CleanTitle()}'
 vim.o.title = true -- Changes the wezterm title
 vim.o.cursorcolumn = true
 vim.o.cursorline = true -- Add highlight behind current line
-vim.opt.shortmess:append { c = true, l = false, q = false, S = false, C = true, I = true }
+vim.o.jumpoptions = 'stack'
+vim.opt.shortmess:append {
+  c = true, -- no completion messages
+  C = true, -- no ins-completion-menu messages
+  I = true, -- no intro
+  S = true, -- no search count overflow
+}
 vim.o.list = true -- Show some invisible characters (tabs...
 vim.opt.listchars = {
   -- trail = '·',
@@ -54,7 +58,11 @@ vim.opt.diffopt = {
   'linematch:60',
   'vertical',
   'algorithm:histogram',
+  'inline:char',
+  'context:6',
+  'iwhite',
 }
+
 vim.o.splitkeep = 'screen'
 
 vim.o.number = true -- Show current line number
@@ -73,19 +81,20 @@ vim.o.sidescrolloff = 8 -- Columns of context
 vim.o.cmdheight = 1 -- Height of the command bar
 vim.o.hidden = true -- Hide buffer if abandoned
 vim.o.showmatch = true -- When closing a bracket (like {}), show the enclosing
-vim.o.splitbelow = true -- Horizontaly plitted windows open below
+vim.o.splitbelow = true -- Horizontally plitted windows open below
 vim.o.splitright = true -- Vertically plitted windows open below bracket for a brief second
 vim.o.startofline = false -- Stop certain movements from always going to the first character of a line.
 vim.o.pumheight = 10 -- pop up menu height
 vim.o.pumborder = 'rounded' -- Popup border style
 vim.o.pumblend = 40 -- Popup blend
 vim.o.confirm = true -- Prompt confirmation if exiting unsaved file
-vim.o.lazyredraw = false -- redraw only when we need to.
+vim.o.lazyredraw = true -- redraw only when we need to.
 vim.o.swapfile = false
-vim.o.backup = false
+vim.o.backup = true
+vim.o.writebackup = true
 vim.o.backupdir = vim.fn.stdpath 'state' .. '/backup'
-vim.o.writebackup = false
 vim.o.wildmenu = true -- Displays a menu on autocomplete
+vim.opt.wildoptions:append { 'fuzzy', 'pum' }
 vim.opt.wildmode = { 'longest:full', 'full' } -- Command-line completion mode
 vim.opt.completeopt = 'menu,menuone,noselect,noinsert,popup'
 vim.o.previewheight = 15
@@ -114,75 +123,30 @@ vim.opt.nrformats:append 'blank'
 
 -- Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable delays and poor user experience.
 vim.o.updatetime = 300
+vim.o.timeoutlen = 400
 
 -- Ignore node_modules and other dirs
 vim.opt.wildignore:append { '**/node_modules/**', '.hg', '.git', '.svn', '*.DS_Store', '*.pyc' }
 vim.opt.path:append { '**' }
 
 -- Folding
-vim.o.foldenable = true
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.o.foldenable = false
+vim.o.foldmethod = 'manual'
 vim.o.foldlevel = 999
 vim.o.foldlevelstart = 99
 vim.o.foldcolumn = '1' -- '0' is not bad
-local function fold_virt_text(result, s, lnum, coloff)
-  if not coloff then
-    coloff = 0
-  end
-  local text = ''
-  local hl
-  for i = 1, #s do
-    local char = s:sub(i, i)
-    local hls = vim.treesitter.get_captures_at_pos(0, lnum, coloff + i - 1)
-    local _hl = hls[#hls]
-    if _hl then
-      local new_hl = '@' .. _hl.capture
-      if new_hl ~= hl then
-        table.insert(result, { text, hl })
-        text = ''
-        hl = nil
-      end
-      text = text .. char
-      hl = new_hl
-    else
-      text = text .. char
-    end
-  end
-  table.insert(result, { text, hl })
-end
-function _G.custom_foldtext()
-  local start = vim.fn.getline(vim.v.foldstart):gsub('\t', string.rep(' ', vim.o.tabstop))
-  local end_str = vim.fn.getline(vim.v.foldend)
-  local end_ = vim.trim(end_str)
-  local result = {}
-  fold_virt_text(result, start, vim.v.foldstart - 1)
-  table.insert(result, { ' ⋯ ', 'Delimiter' })
-  fold_virt_text(result, end_, vim.v.foldend - 1, #(end_str:match '^(%s+)' or ''))
-  return result
-end
-vim.opt.foldtext = 'v:lua.custom_foldtext()'
-
--- Support undercurl
-vim.cmd [[
-let &t_8u = "\e[58:2:%lu:%lu:%lum"
-let &t_Cs = "\e[4:3m"
-let &t_Ce = "\e[4:0m"
-]]
 
 -- j = Delete comment character when joining commented lines.
 -- t = auto break long lines
 -- r = auto insert comment leader after <Enter> (insert mode)
 -- o = auto insert comment leader after o (normal mode)
 -- l = don't break long lines
--- t = Auto-wrap text using 'textwidth'
 vim.opt.formatoptions:append {
   c = true,
   j = true,
   l = true,
   o = true,
   r = true,
-  t = true,
 }
 
 -- Indenting
@@ -204,6 +168,7 @@ vim.filetype.add {
   extension = { tfvars = 'terraform' },
   filename = {
     Brewfile = 'ruby',
+    ['docker-compose.yml'] = 'yaml.docker-compose',
   },
   pattern = {
     ['.*/templates/.*%.yaml'] = {
@@ -214,6 +179,7 @@ vim.filetype.add {
       end,
       { priority = 200 },
     },
+    ['.*/.github/workflows/.*%.yml'] = 'yaml.ghaction',
     ['.*Jenkinsfile.*'] = 'groovy',
     [kube_config_pattern] = 'yaml',
     ['.*'] = function()
@@ -229,15 +195,9 @@ vim.filetype.add {
   },
 }
 
+require('user.input').setup()
+
 -----------
 -- EXTUI --
 -----------
--- require('vim._extui').enable {
---   enable = true, -- Whether to enable or disable the UI.
---   msg = { -- Options related to the message module.
---     ---@type 'cmd'|'msg' Where to place regular messages, either in the
---     ---cmdline or in a separate ephemeral message window.
---     target = 'cmd',
---     timeout = 4000, -- Time a message is visible in the message window.
---   },
--- }
+-- require('vim._extui').enable { enable = true, msg = { target = 'cmd' } }

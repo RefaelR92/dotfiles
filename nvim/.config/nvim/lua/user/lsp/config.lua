@@ -20,7 +20,7 @@ local M = {
   },
 }
 
-M.init = function()
+M.setup = function()
   _G.start_ls = function(with_file)
     local file_name = nil
     if with_file == true then
@@ -42,16 +42,6 @@ M.init = function()
       _G.start_ls()
     end,
   })
-end
-
-M.setup = function()
-  require('user.lsp.actions').setup()
-  require('vim.lsp.log').set_format_func(vim.inspect)
-  M.capabilities =
-    vim.tbl_deep_extend('force', vim.lsp.protocol.make_client_capabilities(), require('cmp_nvim_lsp').default_capabilities(), M.capabilities or {}, {})
-
-  ---@diagnostic disable-next-line: missing-fields
-  require('user.lsp.servers').setup()
 
   -- on attach
   local on_attach_aug = vim.api.nvim_create_augroup('UserLspAttach', { clear = true })
@@ -60,25 +50,52 @@ M.setup = function()
     callback = function(ev)
       local client = vim.lsp.get_client_by_id(ev.data.client_id)
       local bufnr = ev.buf
-      require 'user.lsp.keymaps'(bufnr)
       if client and client.server_capabilities.documentSymbolProvider then
         require('nvim-navic').attach(client, bufnr)
       end
 
-      -- Diagnostics
-      if vim.g.dignostics_configured then
+      -- Mappings
+      if vim.b[bufnr].lsp_keymaps_configured then
         return
       end
-      vim.g.dignostics_configured = true
+      vim.b[bufnr].lsp_keymaps_configured = true
+      require 'user.lsp.keymaps'(bufnr)
+
+      -- Diagnostics
+      if vim.g.diagnostics_configured then
+        return
+      end
+      vim.g.diagnostics_configured = true
       vim.diagnostic.config {
-        -- jump = {on_jump = { float = true }},
+        severity_sort = true,
         signs = { text = M.diagnostic_signs },
-        virtual_text = { severity = { min = vim.diagnostic.severity.WARN } },
+        virtual_text = { current_line = false, severity = { min = vim.diagnostic.severity.WARN } },
         virtual_lines = { current_line = true },
-        float = { border = 'rounded', source = 'if_many' },
+        float = { border = 'rounded', source = true },
       }
     end,
   })
+
+  -- for statusline
+  local lsp_statusline_aug = vim.api.nvim_create_augroup('UserLspStatusline', { clear = true })
+  vim.api.nvim_create_autocmd({ 'LspAttach', 'LspDetach' }, {
+    group = lsp_statusline_aug,
+    callback = function(ev)
+      local bufnr = ev.buf
+      vim.schedule(function()
+        if not vim.api.nvim_buf_is_valid(bufnr) then
+          return
+        end
+        vim.b[bufnr].attached_lsp = vim.tbl_map(function(client_l)
+          return client_l.name
+        end, vim.lsp.get_clients { bufnr = bufnr })
+        vim.cmd 'redrawstatus'
+      end)
+    end,
+  })
+
+  require('user.lsp.actions').setup()
+  require('user.lsp.servers').setup()
 end
 
 return M

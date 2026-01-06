@@ -3,8 +3,23 @@ return {
   {
     'zbirenbaum/copilot.lua',
     event = { 'InsertEnter' },
+    dependencies = {
+      'copilotlsp-nvim/copilot-lsp',
+      init = function()
+        vim.g.copilot_nes_debounce = 500
+      end,
+    },
     config = function()
       require('copilot').setup {
+        nes = {
+          enabled = false,
+          auto_trigger = true,
+          keymap = {
+            -- accept_and_goto = '<C-]>',
+            accept = false,
+            dismiss = '<Esc>',
+          },
+        },
         copilot_node_command = 'node',
         filetypes = { ['*'] = true },
         panel = {
@@ -102,6 +117,29 @@ return {
     },
   },
   {
+    'coder/claudecode.nvim',
+    enabled = false,
+    opts = {},
+    keys = {
+      { '<leader>ccc', '<cmd>ClaudeCode<cr>', desc = 'Toggle Claude' },
+      -- { '<leader>af', '<cmd>ClaudeCodeFocus<cr>', desc = 'Focus Claude' },
+      -- { '<leader>ar', '<cmd>ClaudeCode --resume<cr>', desc = 'Resume Claude' },
+      -- { '<leader>aC', '<cmd>ClaudeCode --continue<cr>', desc = 'Continue Claude' },
+      -- { '<leader>am', '<cmd>ClaudeCodeSelectModel<cr>', desc = 'Select Claude model' },
+      -- { '<leader>ab', '<cmd>ClaudeCodeAdd %<cr>', desc = 'Add current buffer' },
+      -- { '<leader>as', '<cmd>ClaudeCodeSend<cr>', mode = 'v', desc = 'Send to Claude' },
+      {
+        '<leader>cca',
+        '<cmd>ClaudeCodeTreeAdd<cr>',
+        desc = 'Add file',
+        ft = { 'NvimTree', 'neo-tree', 'oil', 'minifiles', 'netrw' },
+      },
+      -- Diff management
+      -- { '<leader>aa', '<cmd>ClaudeCodeDiffAccept<cr>', desc = 'Accept diff' },
+      -- { '<leader>ad', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Deny diff' },
+    },
+  },
+  {
     'yetone/avante.nvim',
     build = 'make',
     enabled = true,
@@ -111,8 +149,6 @@ return {
       { '<leader>ccs', '<cmd>AvanteStop<CR>' },
     },
     cmd = { 'AvanteChat' },
-    ---@module 'avante'
-    ---@type avante.Config
     opts = {
       disabled_tools = {
         'list_files', -- Built-in file operations
@@ -156,8 +192,14 @@ return {
       {
         -- support for image pasting
         'HakonHarnes/img-clip.nvim',
-        event = 'VeryLazy',
-        keys = { { '<leader>p', '<cmd>PasteImage<cr>', desc = 'Paste image from system clipboard', ft = { 'AvanteInput' } } },
+        keys = {
+          {
+            '<leader>p',
+            '<cmd>PasteImage<cr>',
+            desc = 'Paste image from system clipboard',
+            ft = { 'AvanteInput' },
+          },
+        },
         opts = {
           -- recommended settings
           default = {
@@ -170,14 +212,6 @@ return {
             use_absolute_path = true,
           },
         },
-      },
-      {
-        -- Make sure to set this up properly if you have lazy=true
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { 'markdown', 'Avante' },
-        },
-        ft = { 'markdown', 'Avante' },
       },
     },
   },

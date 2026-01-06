@@ -1,8 +1,17 @@
+<!-- markdownlint-disable MD013 -->
+
 # Refael Doron's DotFiles
 
-<a href="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim/badges/plugins?style=flat" /></a>
-<a href="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim/badges/leaderkey?style=flat" /></a>
-<a href="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/refaelr92/dotfiles-nvim-config-nvim/badges/plugin-manager?style=flat" /></a>
+![macOS](https://img.shields.io/badge/os-macOS-black?logo=apple)
+![Shell](https://img.shields.io/badge/shell-zsh-89e051?logo=zsh)
+![Editor](https://img.shields.io/badge/editor-Neovim-57A143?logo=neovim)
+![Terminal](https://img.shields.io/badge/terminal-WezTerm-4E49EE?logo=wezterm)
+![Stow](https://img.shields.io/badge/managed%20by-Stow-informational?logo=gnu)
+![Last
+Commit](https://img.shields.io/github/last-commit/RefaelR92/dotfiles?logo=git)
+
+[![Lint](https://github.com/RefaelR92/dotfiles/actions/workflows/lint.yml/badge.svg)](https://github.com/RefaelR92/dotfiles/actions/workflows/lint.yml)
+[![Tests](https://github.com/RefaelR92/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/RefaelR92/dotfiles/actions/workflows/ci.yml)
 
 ## Usage
 
@@ -24,7 +33,7 @@
    brew install git stow
    ```
 
-2. Clone this repo:
+2. Clone this repository:
 
    ```bash
    [[ -d ~/Repos ]] || mkdir ~/Repos
@@ -64,17 +73,17 @@
 
 8. Add support for recently installed [fzf](https://github.com/junegunn/fzf)
 
-    ```bash
-    $(brew --prefix)/opt/fzf/install
-    ```
+   ```bash
+   $(brew --prefix)/opt/fzf/install
+   ```
 
 9. Login to gh cli
 
-    ```bash
-    gh auth login --web -h github.com
-    ```
+   ```bash
+   gh auth login --web -h github.com
+   ```
 
-10. Install gh [github cli copilot extension](https://github.com/github/gh-copilot)
+10. Install gh [GitHub cli copilot extension](https://github.com/github/gh-copilot)
 
     ```bash
     gh extension install github/gh-copilot --force
@@ -86,7 +95,7 @@
 
 ## Usage (just NVIM)
 
- > Install requires Neovim 0.10+. Always review the code before installing a configuration.
+> Install requires Neovim 0.10+. Always review the code before installing a configuration.
 
 Clone the repository and install the plugins:
 
@@ -104,7 +113,7 @@ NVIM_APPNAME=refaeldoron/dotfiles/nvim/.config/nvim nvim
 
 - Adjust dock and keyboard settings
 
-- Download and install [docker](https://www.docker.com/products/docker-desktop)
+- Download and install [Docker](https://www.docker.com/products/docker-desktop)
 
 - Change clipy and maccy shortcuts, and load snippets
 

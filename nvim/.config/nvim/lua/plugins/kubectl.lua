@@ -12,6 +12,10 @@ return {
       interval = 300, -- milliseconds
     },
 
+    lsp = {
+      enabled = true,
+    },
+
     headers = {
       enabled = true,
       hints = true,
@@ -42,7 +46,6 @@ return {
   },
   cmd = { 'Kubectl', 'Kubectx', 'Kubens' },
   keys = {
-    { '<leader>k', '<cmd>lua require("kubectl").toggle()<cr>' },
     { '7', '<Plug>(kubectl.view_nodes)', ft = 'k8s_*' },
     { '8', '<Plug>(kubectl.view_daemonsets)', ft = 'k8s_*' },
     { '9', '<Plug>(kubectl.view_statefulsets)', ft = 'k8s_*' },
@@ -87,7 +90,7 @@ return {
       callback = function()
         vim.o.relativenumber = false
         vim.opt.titlestring = '❄️ k8s: %t'
-        if vim.bo.filetype == 'k8s_yaml' then
+        if vim.bo.filetype:match '^k8s_.*yaml$' then
           vim.bo.filetype = 'yaml'
         end
       end,
@@ -121,5 +124,9 @@ return {
         vim.notify('Kubernetes api-resources cache loaded', vim.log.levels.INFO)
       end,
     })
+
+    vim.api.nvim_create_user_command('KubectlOpen', function()
+      require('kubectl').open()
+    end, {})
   end,
 }

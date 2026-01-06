@@ -3,7 +3,11 @@ local M = {}
 
 M.prnt = function(message, error)
   vim.schedule(function()
-    utils.pretty_print(message, 'Git Actions', '', error and vim.log.levels.ERROR, error and 7000 or 3000)
+    vim.notify(message, error and vim.log.levels.ERROR or vim.log.levels.INFO, {
+      title = 'Git Actions',
+      icon = '',
+      timeout = error and 7000 or 3000,
+    })
   end)
 end
 
@@ -72,7 +76,7 @@ end
 
 M.get_branch = function(cb)
   run_git({ 'branch', '--show-current' }, nil, function(branch)
-    local branch = vim.trim(branch)
+    branch = vim.trim(branch)
     if branch == '' then
       M.get_short_commit(function(commit_hash)
         M.prnt('No branch found, using commit hash: ' .. commit_hash)
@@ -109,8 +113,8 @@ M.get_remotes = function(cb)
     for _, v in ipairs(vim.split(obj, '\n')) do
       local l = v:match '(.-)%s+%(fetch%)'
       if l then
-        local splited = vim.split(l, '\t')
-        remotes[splited[1]] = splited[2]
+        local splitted = vim.split(l, '\t')
+        remotes[splitted[1]] = splitted[2]
       end
     end
     cb(remotes)
@@ -140,6 +144,17 @@ M.get_branches_sync = function(remote_name)
     table.insert(branches, string.match(line, 'refs/heads/(.*)$'))
   end
   return branches
+end
+
+M.get_toplevel = function(cb)
+  run_git({ 'rev-parse', '--show-toplevel' }, nil, function(toplevel)
+    cb(vim.trim(toplevel))
+  end)
+end
+
+M.get_toplevel_sync = function()
+  local toplevel = run_git_sync({ 'rev-parse', '--show-toplevel' }, nil).stdout or ''
+  return vim.trim(toplevel)
 end
 
 M.checkout = function(branch_name)

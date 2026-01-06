@@ -1,6 +1,3 @@
----@class PluginSpec[]
---- Plugin specifications for Lazy.nvim plugin manager
---- This file contains the core plugin configurations for Neovim
 local M = {
   {
     'nvim-lua/plenary.nvim',
@@ -73,7 +70,7 @@ local M = {
       }
     end,
     init = function()
-      local custom_switches = require('user.utils').augroup 'CustomSwitches'
+      local custom_switches = vim.api.nvim_create_augroup('CustomSwitches', { clear = true })
       vim.api.nvim_create_autocmd('FileType', {
         group = custom_switches,
         pattern = { 'gitrebase' },
@@ -111,28 +108,9 @@ local M = {
     end,
   },
   {
-    'ggandor/leap.nvim',
-    keys = {
-      {
-        's',
-        function()
-          require('leap').leap { forward = true }
-        end,
-      },
-
-      {
-        'S',
-        function()
-          require('leap').leap { backward = true }
-        end,
-      },
-    },
-  },
-  {
     'axelvc/template-string.nvim',
     ft = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact', 'python' },
-    event = 'InsertEnter',
-    config = true,
+    opts = {},
   },
   {
     'kevinhwang91/nvim-hlslens',
@@ -159,7 +137,5 @@ local M = {
 
   -- DONE ✅
 }
-
-vim.keymap.set('n', '<leader>z', '<cmd>Lazy<CR>', { silent = true })
 
 return M
