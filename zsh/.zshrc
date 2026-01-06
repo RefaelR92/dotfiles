@@ -83,14 +83,6 @@ export KUBECONFIG=$HOME/.kube/config
 export KUBECTL_EXTERNAL_DIFF="kdiff"
 export KUBERNETES_EXEC_INFO='{"apiVersion": "client.authentication.k8s.io/v1beta1"}'
 
-# Starship prompt (loaded synchronously as it's needed immediately)
-eval "$(starship init zsh)"
-
-export K8S_DEV=false
-export PR_REVIEW_DEV=false
-export CMP_COMPLETION='<M-Space>'
-export PJ_DIRS='~/Repos/,~/.dotfiles'
-
 # ==================== #
 # MCP Servers Sync     #
 # ==================== #
@@ -101,3 +93,11 @@ if [[ ! -f "$MCP_SYNC_TIMESTAMP" ]] || [[ "$(date +%Y%m%d)" != "$(date -r "$MCP_
     ~/.dotfiles/ai/sync-mcp-servers.sh 2>/dev/null && touch "$MCP_SYNC_TIMESTAMP"
   ) &|
 fi
+
+# Starship prompt (loaded synchronously as it's needed immediately)
+eval "$(starship init zsh)"
+
+export K8S_DEV=false
+export PR_REVIEW_DEV=false
+export CMP_COMPLETION='<M-Space>'
+export PJ_DIRS='~/Repos/,~/.dotfiles'

@@ -1,27 +1,55 @@
-# How to upgrade Neovim and related plugins
+<!-- markdownlint-disable MD033 -->
 
-update-nvim-nightly
-asdf plugin update --all
----
+# How to Upgrade Dotfiles
 
-other window -> run this brew upgrade
+## Fetch and Merge Upstream Changes
 
-open vim
-click <leader>z
-S to sync
-q to quite the lazy window
-<leader>cm to open MAson window
-U to update all
-
----
-
-now on a different window, navigate to dotfiles (~/.dotfiles)
+```bash
+cd ~/.dotfiles
 git fetch --all
-git status -> check if there's any uncommited, changes, commit them
-git checkout -b moshe-changes-{DATE} (repclate the DATE)
-git checkout moshe/master -- nvim to fetch all neovim changes
------
+git status # check if there's any uncommitted, changes, commit them
+git checkout -b moshe-changes-$(date "+%d-%m-%Y")
+git merge moshe/master
+```
 
-open vim
-stage all changes
-commit && push
+Handle conflicts if any, then commit, review the changes and push.
+
+## Neovim and related plugins
+
+### Upgrade neovim to nightly
+
+```bash
+update-nvim-nightly
+```
+
+### Upgrade lazy.nvim plugins
+
+- Open vim
+- <kbd>\<leader\>z</kbd> to open lazy window (for Neovim plugins)
+- <kbd>S</kbd> to sync
+- <kbd>q</kbd> to quit the lazy window
+
+### Upgrade Mason CLIs
+
+- <kbd>\<leader\>cm</kbd> to open Mason window (for external CLIs)
+- <kbd>U</kbd> to update all
+
+## Upgrade asdf
+
+Install all CLIs current version
+
+```bash
+asdf install
+```
+
+upgrade all plugins
+
+```bash
+asdf plugin update --all
+```
+
+## Mac Related
+
+```bash
+brew upgrade
+```
