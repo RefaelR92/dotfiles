@@ -16,6 +16,9 @@ git merge moshe/master
 
 Handle conflicts if any, then commit, review the changes and push.
 
+> [!NOTE]
+> Don't forget to checkout back to your `master` branch after merging.
+
 ## Neovim and related plugins
 
 ### Upgrade neovim to nightly
@@ -31,6 +34,17 @@ update-nvim-nightly
 - <kbd>S</kbd> to sync
 - <kbd>q</kbd> to quit the lazy window
 
+> [!NOTE]
+> If some plugin installation fails, use <kbd>X</kbd> to clean and then
+> `:restart` to reinstall the plugin automagically
+
+<!-- markdownlint-disable-next-line MD028 -->
+
+> [!NOTE]
+> Sometimes when upgrading nvim-treesitter plugin, we may need to delete the
+> entire treesitter parsers directory (`rm -rf ~/.local/share/nvim/treesitter`)
+> and restart Neovim to let them install from fresh
+
 ### Upgrade Mason CLIs
 
 - <kbd>\<leader\>cm</kbd> to open Mason window (for external CLIs)
@@ -44,7 +58,7 @@ Install all CLIs current version
 asdf install
 ```
 
-upgrade all plugins
+Upgrade all plugins
 
 ```bash
 asdf plugin update --all
