@@ -4,10 +4,12 @@
 
 ## Fetch and Merge Upstream Changes
 
+> [!WARNING]
+> Make sure to commit or stash your local changes before running these commands.
+
 ```bash
 cd ~/.dotfiles
 git fetch --all
-git status # check if there's any uncommitted, changes, commit them
 git checkout -b moshe-changes-$(date "+%d-%m-%Y")
 git merge moshe/master
 ```
