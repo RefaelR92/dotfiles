@@ -26,3 +26,9 @@ truncation_symbol = "…/"
 
 [cmd_duration]
 min_time = 2000
+
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "dimmed white"
+time_format = "%H:%M:%S"
